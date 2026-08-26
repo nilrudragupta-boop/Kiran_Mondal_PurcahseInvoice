@@ -205,7 +205,7 @@
 
         .billing-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 2fr;
             gap: 30px;
             margin-bottom: 25px;
         }
@@ -452,18 +452,18 @@
             <!-- Header -->
             <div class="header-grid">
                 <div>
-                    <input type="text" id="companyName" class="company-name-input" value="Rabindranath Mondal"
+                    <input type="text" id="companyName" class="company-name-input" value="Kiran Mondal"
                         placeholder="Your Company Name">
-                    <textarea id="companyDetails" rows="3"
-                        placeholder="Company Address / Contact Info">Ghosal Chowk, Belkuli,
+                    <textarea id="companyDetails" rows="3" placeholder="Company Address / Contact Info">Ghosal Chowk, Belkuli,
 Howrah-711322, West Bengal,
-Ph: 7449853278</textarea>
+Ph: +91 74498 53278</textarea>
                 </div>
                 <div>
                     <div class="invoice-title">INVOICE</div>
                     <div class="meta-grid">
                         <span class="meta-label">Invoice No:</span>
-                        <input type="text" id="invoiceNumber" value="INV-2026-0842" class="text-right meta-input-compact">
+                        <input type="text" id="invoiceNumber" value="INV-2026-0842"
+                            class="text-right meta-input-compact">
 
                         <span class="meta-label">Date:</span>
                         <input type="date" id="invoiceDate" value="2026-08-26" class="text-right meta-input-compact">
@@ -476,10 +476,10 @@ Ph: 7449853278</textarea>
                 <div>
                     <div class="section-tag">Billed To</div>
                     <input type="text" id="clientName" value="ISHAAN POWERTECH" placeholder="Client Name"
-                        style="font-weight:700; margin-bottom:8px;">
+                        style="font-weight:700; font-size:16px; margin-bottom:10px;">
                     <textarea id="clientAddress" rows="3" placeholder="Client Address / Email">1, Abdul Hameed Street, 6th Floor, Room No.- 609,
 Kolkata - 700069, West Bengal, India
-info@ishaanpowertech.com</textarea>
+info@ishaanpowertech.com, Ph: +91 9831211153</textarea>
                 </div>
                 <div>
                     <div class="section-tag">Payment & Transfer Instructions</div>
@@ -494,11 +494,12 @@ IFSC: SBIN0000000</textarea>
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">Sl No.</th>
-                        <th style="width: 35%;">Description</th>
-                        <th class="text-center" style="width: 10%;">UoM</th>
-                        <th class="text-center" style="width: 10%;">Qty</th>
-                        <th class="text-right" style="width: 16%;">Rate (₹)</th>
-                        <th class="text-right" style="width: 18%;">Amount (₹)</th>
+                        <th style="width: 30%;">Description</th>
+                        <th class="text-center" style="width: 11%;">HSN/SAC</th>
+                        <th class="text-center" style="width: 8%;">UoM</th>
+                        <th class="text-center" style="width: 8%;">Qty</th>
+                        <th class="text-right" style="width: 15%;">Rate (₹)</th>
+                        <th class="text-right" style="width: 17%;">Amount (₹)</th>
                         <th class="text-center no-print" style="width: 6%;">Action</th>
                     </tr>
                 </thead>
@@ -512,6 +513,9 @@ IFSC: SBIN0000000</textarea>
                                 style="font-weight:600; margin-bottom:4px;">
                             <input type="text" class="item-desc" value="" placeholder="Description"
                                 style="font-size:11.5px; color:#64748b;">
+                        </td>
+                        <td>
+                            <input type="text" class="item-hsn text-center" value="" placeholder="HSN/SAC">
                         </td>
                         <td>
                             <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
@@ -540,6 +544,9 @@ IFSC: SBIN0000000</textarea>
                                 style="font-weight:600; margin-bottom:4px;">
                             <input type="text" class="item-desc" value="" placeholder="Description"
                                 style="font-size:11.5px; color:#64748b;">
+                        </td>
+                        <td>
+                            <input type="text" class="item-hsn text-center" value="" placeholder="HSN/SAC">
                         </td>
                         <td>
                             <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
@@ -605,7 +612,7 @@ IFSC: SBIN0000000</textarea>
                         <tr id="taxRow">
                             <td style="color:#64748b;">
                                 GST / Tax (%):
-                                <input type="number" id="taxRate" value="18" min="0" max="100" step="any"
+                                <input type="number" id="taxRate" value="0" min="0" max="100" step="any"
                                     style="width:65px; display:inline-block; margin-left:6px;"
                                     oninput="calculateTotals()">
                                 <span id="taxPrintLabel" class="print-only-inline"></span>
@@ -623,7 +630,7 @@ IFSC: SBIN0000000</textarea>
                             <td class="total-val" id="roundOffVal">₹0.00</td>
                         </tr>
                         <tr class="grand-total-row">
-                            <td>Total Due:</td>
+                            <td>Grand Total :</td>
                             <td class="total-val" id="grandTotalVal">₹0.00</td>
                         </tr>
                     </table>
@@ -633,7 +640,7 @@ IFSC: SBIN0000000</textarea>
             <!-- Authorised Signatory Area -->
             <div class="bottom-section">
                 <div class="signature-box">
-                    <input type="text" id="signerName" value="Rabindranath Mondal"
+                    <input type="text" id="signerName" value="Kiran Mondal"
                         style="text-align:right; font-weight:600; border:none; margin-bottom: 30px;">
                     <div class="signature-line"></div>
                     <div class="signatory-label">Authorised Signatory</div>
@@ -812,6 +819,9 @@ IFSC: SBIN0000000</textarea>
                 <input type="text" class="item-desc" placeholder="Description" style="font-size:11.5px; color:#64748b;">
             </td>
             <td>
+                <input type="text" class="item-hsn text-center" placeholder="HSN/SAC">
+            </td>
+            <td>
                 <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
             </td>
             <td>
@@ -879,6 +889,7 @@ IFSC: SBIN0000000</textarea>
                     data.items.push({
                         title: row.querySelector('.item-title').value,
                         desc: row.querySelector('.item-desc').value,
+                        hsn: row.querySelector('.item-hsn') ? row.querySelector('.item-hsn').value : '',
                         uom: row.querySelector('.item-uom').value,
                         qty: row.querySelector('.item-qty').value,
                         price: row.querySelector('.item-price').value
@@ -906,7 +917,7 @@ IFSC: SBIN0000000</textarea>
                     document.getElementById('clientAddress').value = data.clientAddress || '';
                     document.getElementById('paymentTerms').value = data.paymentTerms || '';
                     document.getElementById('notes').value = data.notes || '';
-                    document.getElementById('signerName').value = data.signerName || 'Rabindranath Mondal';
+                    document.getElementById('signerName').value = data.signerName || 'Kiran Mondal';
                     document.getElementById('discountType').value = data.discountType || '%';
                     document.getElementById('discountValue').value = data.discountValue !== undefined ? data.discountValue : (data.discountRate || 0);
                     document.getElementById('taxRate').value = data.taxRate || 0;
@@ -924,6 +935,9 @@ IFSC: SBIN0000000</textarea>
                     <td>
                         <input type="text" class="item-title" value="${item.title || ''}" placeholder="Item name" style="font-weight:600; margin-bottom:4px;">
                         <input type="text" class="item-desc" value="${item.desc || ''}" placeholder="Item description" style="font-size:11.5px; color:#64748b;">
+                    </td>
+                    <td>
+                        <input type="text" class="item-hsn text-center" value="${item.hsn || ''}" placeholder="HSN/SAC">
                     </td>
                     <td>
                         <input type="text" class="item-uom text-center" value="${item.uom || 'PCS'}" placeholder="UoM">
