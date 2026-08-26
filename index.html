@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Invoice</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm 15mm;
+            background-color: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 30px 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        /* Top Action Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toolbar-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-outline {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        .btn-outline:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Invoice Paper Sheet */
+        .invoice-paper {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Editable Form Fields Styling */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            border: 1px dashed #cbd5e1;
+            background: #fdfdfe;
+            padding: 5px 5px;
+            border-radius: 2px;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        input:hover,
+        textarea:hover,
+        select:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border: 1px solid #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Invoice Grid Layouts */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 25px;
+        }
+
+        .company-name-input {
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+            border-style: dashed;
+            margin-bottom: 6px;
+        }
+
+        .invoice-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: 1px;
+            margin: 0 0 10px 0;
+            text-align: right;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            justify-content: end;
+            gap: 8px 12px;
+            align-items: center;
+        }
+
+        .meta-input-compact {
+            width: 130px !important;
+        }
+
+        .meta-label {
+            font-weight: 800;
+            color: #64748b;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .section-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        /* Line Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .items-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 8px;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 2px solid #cbd5e1;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        .item-sl-no {
+            font-weight: 600;
+            color: #64748b;
+            padding-top: 8px;
+            display: inline-block;
+        }
+
+        .item-row-total {
+            font-weight: 600;
+            padding-top: 10px;
+            display: block;
+        }
+
+        .add-row-bar {
+            margin-bottom: 25px;
+        }
+
+        /* Summary Section */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals-table td {
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .totals-table .total-val {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .grand-total-row td {
+            padding-top: 12px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .grand-total-row .total-val {
+            color: #2563eb;
+        }
+
+        /* Total in Words Box */
+        .total-in-words-box {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .total-in-words-box strong {
+            color: #0f172a;
+        }
+
+        /* Bottom Signature Area */
+        .bottom-section {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 250px;
+            text-align: right;
+        }
+
+        .signature-line {
+            width: 100%;
+            border-top: 1px dashed #94a3b8;
+            margin-bottom: 1px;
+            height: 10px;
+        }
+
+        .signatory-label {
+            margin-top: 1px;
+            font-weight: 700;
+            color: #080808;
+            font-size: 12px;
+        }
+
+        /* Print Display Helpers */
+        .print-only-inline {
+            display: none;
+        }
+
+        /* Notification Toast */
+        #toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only-inline {
+                display: inline !important;
+            }
+
+            .hide-on-print {
+                display: none !important;
+            }
+
+            .invoice-paper {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+
+            input,
+            textarea,
+            select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .total-in-words-box {
+                border: 1px solid #e2e8f0;
+                background: #fdfdfe !important;
+            }
+
+            .signature-line {
+                border-top: 1px solid #64748b;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Top Interactive Toolbar -->
+        <div class="toolbar no-print">
+            <div class="toolbar-title">⚡ Kiran Mondal Purchase Invoice</div>
+            <div class="toolbar-group">
+                <button class="btn btn-outline" onclick="saveToStorage()">
+                    💾 Save Invoice
+                </button>
+                <button class="btn btn-outline" onclick="loadFromStorage()">
+                    📂 Load Saved
+                </button>
+                <button class="btn btn-outline" onclick="resetForm()">
+                    🔄 Reset
+                </button>
+                <button class="btn btn-primary" onclick="exportPDF()">
+                    🖨️ Export PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Invoice Sheet Form -->
+        <div class="invoice-paper" id="invoiceArea">
+
+            <!-- Header -->
+            <div class="header-grid">
+                <div>
+                    <input type="text" id="companyName" class="company-name-input" value="Rabindranath Mondal"
+                        placeholder="Your Company Name">
+                    <textarea id="companyDetails" rows="3"
+                        placeholder="Company Address / Contact Info">Ghosal Chowk, Belkuli,
+Howrah-711322, West Bengal,
+Ph: 7449853278</textarea>
+                </div>
+                <div>
+                    <div class="invoice-title">INVOICE</div>
+                    <div class="meta-grid">
+                        <span class="meta-label">Invoice No:</span>
+                        <input type="text" id="invoiceNumber" value="INV-2026-0842" class="text-right meta-input-compact">
+
+                        <span class="meta-label">Date:</span>
+                        <input type="date" id="invoiceDate" value="2026-08-26" class="text-right meta-input-compact">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Columns -->
+            <div class="billing-grid">
+                <div>
+                    <div class="section-tag">Billed To</div>
+                    <input type="text" id="clientName" value="ISHAAN POWERTECH" placeholder="Client Name"
+                        style="font-weight:700; margin-bottom:8px;">
+                    <textarea id="clientAddress" rows="3" placeholder="Client Address / Email">1, Abdul Hameed Street, 6th Floor, Room No.- 609,
+Kolkata - 700069, West Bengal, India
+info@ishaanpowertech.com</textarea>
+                </div>
+                <div>
+                    <div class="section-tag">Payment & Transfer Instructions</div>
+                    <textarea id="paymentTerms" rows="4" placeholder="Bank Details / Instructions">Bank: State Bank of India
+A/C: 000000000000
+IFSC: SBIN0000000</textarea>
+                </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <table class="items-table" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 5%;">Sl No.</th>
+                        <th style="width: 35%;">Description</th>
+                        <th class="text-center" style="width: 10%;">UoM</th>
+                        <th class="text-center" style="width: 10%;">Qty</th>
+                        <th class="text-right" style="width: 16%;">Rate (₹)</th>
+                        <th class="text-right" style="width: 18%;">Amount (₹)</th>
+                        <th class="text-center no-print" style="width: 6%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody">
+                    <tr class="item-row">
+                        <td class="text-center">
+                            <span class="item-sl-no">1</span>
+                        </td>
+                        <td>
+                            <input type="text" class="item-title" value="" placeholder="Item name"
+                                style="font-weight:600; margin-bottom:4px;">
+                            <input type="text" class="item-desc" value="" placeholder="Description"
+                                style="font-size:11.5px; color:#64748b;">
+                        </td>
+                        <td>
+                            <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
+                        </td>
+                        <td>
+                            <input type="number" class="item-qty text-center" value="1" min="0" step="any"
+                                oninput="calculateTotals()">
+                        </td>
+                        <td>
+                            <input type="number" class="item-price text-right" value="0" min="0" step="any"
+                                oninput="calculateTotals()">
+                        </td>
+                        <td class="text-right">
+                            <span class="item-row-total">₹ 0.00</span>
+                        </td>
+                        <td class="text-center no-print">
+                            <button class="btn btn-danger" onclick="deleteRow(this)" title="Delete Row">✕</button>
+                        </td>
+                    </tr>
+                    <tr class="item-row">
+                        <td class="text-center">
+                            <span class="item-sl-no">2</span>
+                        </td>
+                        <td>
+                            <input type="text" class="item-title" value="" placeholder="Item name"
+                                style="font-weight:600; margin-bottom:4px;">
+                            <input type="text" class="item-desc" value="" placeholder="Description"
+                                style="font-size:11.5px; color:#64748b;">
+                        </td>
+                        <td>
+                            <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
+                        </td>
+                        <td>
+                            <input type="number" class="item-qty text-center" value="1" min="0" step="any"
+                                oninput="calculateTotals()">
+                        </td>
+                        <td>
+                            <input type="number" class="item-price text-right" value="0" min="0" step="any"
+                                oninput="calculateTotals()">
+                        </td>
+                        <td class="text-right">
+                            <span class="item-row-total">₹0.00</span>
+                        </td>
+                        <td class="text-center no-print">
+                            <button class="btn btn-danger" onclick="deleteRow(this)" title="Delete Row">✕</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Add Line Item Button -->
+            <div class="add-row-bar no-print">
+                <button class="btn btn-outline" onclick="addRow()">➕ Add Line Item</button>
+            </div>
+
+            <!-- Summary & Totals -->
+            <div class="summary-grid">
+                <div>
+                    <div class="section-tag">Notes & Remarks</div>
+                    <textarea id="notes" rows="3"
+                        placeholder="Add custom notes, thank you message, or terms...">Thank you for your business! Payment is expected within agreed terms.</textarea>
+
+                    <!-- Total In Words Box -->
+                    <div class="total-in-words-box">
+                        <strong>Total in Words:</strong><br>
+                        <span id="totalInWords">Zero Rupees Only</span>
+                    </div>
+                </div>
+                <div>
+                    <table class="totals-table">
+                        <tr>
+                            <td style="color:#64748b;">Subtotal:</td>
+                            <td class="total-val" id="subtotalVal">₹ 0.00</td>
+                        </tr>
+                        <tr id="discountRow">
+                            <td style="color:#64748b;">
+                                Discount:
+                                <select id="discountType" onchange="calculateTotals()"
+                                    style="width:50px; display:inline-block; margin-left:4px; padding:2px 4px;"
+                                    class="no-print">
+                                    <option value="%">%</option>
+                                    <option value="₹">₹</option>
+                                </select>
+                                <input type="number" id="discountValue" value="0" min="0" step="any"
+                                    style="width:65px; display:inline-block; margin-left:4px;"
+                                    oninput="calculateTotals()">
+                                <span id="discountPrintLabel" class="print-only-inline"></span>
+                            </td>
+                            <td class="total-val" id="discountVal">-₹0.00</td>
+                        </tr>
+                        <tr id="taxRow">
+                            <td style="color:#64748b;">
+                                GST / Tax (%):
+                                <input type="number" id="taxRate" value="18" min="0" max="100" step="any"
+                                    style="width:65px; display:inline-block; margin-left:6px;"
+                                    oninput="calculateTotals()">
+                                <span id="taxPrintLabel" class="print-only-inline"></span>
+                            </td>
+                            <td class="total-val" id="taxVal">₹0.00</td>
+                        </tr>
+                        <tr id="roundOffRow">
+                            <td style="color:#64748b;">
+                                <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                                    <input type="checkbox" id="enableRoundOff" onchange="calculateTotals()"
+                                        style="width:auto; cursor:pointer;" class="no-print">
+                                    Round Off:
+                                </label>
+                            </td>
+                            <td class="total-val" id="roundOffVal">₹0.00</td>
+                        </tr>
+                        <tr class="grand-total-row">
+                            <td>Total Due:</td>
+                            <td class="total-val" id="grandTotalVal">₹0.00</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Authorised Signatory Area -->
+            <div class="bottom-section">
+                <div class="signature-box">
+                    <input type="text" id="signerName" value="Rabindranath Mondal"
+                        style="text-align:right; font-weight:600; border:none; margin-bottom: 30px;">
+                    <div class="signature-line"></div>
+                    <div class="signatory-label">Authorised Signatory</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast">Invoice saved successfully!</div>
+
+        <script>
+            function formatCurrency(num) {
+                return '₹' + Number(num || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Renumber item rows sequentially
+            function updateSerialNumbers() {
+                const rows = document.querySelectorAll('.item-row');
+                rows.forEach((row, index) => {
+                    const slNoEl = row.querySelector('.item-sl-no');
+                    if (slNoEl) {
+                        slNoEl.innerText = index + 1;
+                    }
+                });
+            }
+
+            // Convert Number to Words (Indian Numbering Format: Lakhs & Crores)
+            function numberToWordsINR(amount) {
+                if (isNaN(amount) || amount === 0) return 'Zero Rupees Only';
+
+                const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+                function convertTwoDigits(n) {
+                    if (n < 10) return units[n];
+                    if (n >= 10 && n < 20) return teens[n - 10];
+                    const unit = n % 10;
+                    return tens[Math.floor(n / 10)] + (unit ? ' ' + units[unit] : '');
+                }
+
+                function convertThreeDigits(n) {
+                    let str = '';
+                    const hundred = Math.floor(n / 100);
+                    const rem = n % 100;
+                    if (hundred > 0) {
+                        str += units[hundred] + ' Hundred';
+                        if (rem > 0) str += ' and ';
+                    }
+                    if (rem > 0) {
+                        str += convertTwoDigits(rem);
+                    }
+                    return str;
+                }
+
+                let [rupeesPart, paisePart] = amount.toFixed(2).split('.');
+                let num = parseInt(rupeesPart, 10);
+                let words = '';
+
+                if (num === 0) {
+                    words = 'Zero';
+                } else {
+                    const crore = Math.floor(num / 10000000);
+                    num %= 10000000;
+
+                    const lakh = Math.floor(num / 100000);
+                    num %= 100000;
+
+                    const thousand = Math.floor(num / 1000);
+                    num %= 1000;
+
+                    const remainder = num;
+
+                    if (crore > 0) words += convertThreeDigits(crore) + ' Crore ';
+                    if (lakh > 0) words += convertTwoDigits(lakh) + ' Lakh ';
+                    if (thousand > 0) words += convertTwoDigits(thousand) + ' Thousand ';
+                    if (remainder > 0) words += convertThreeDigits(remainder) + ' ';
+                }
+
+                words = words.trim() + ' Rupees';
+
+                const paise = parseInt(paisePart, 10);
+                if (paise > 0) {
+                    words += ' and ' + convertTwoDigits(paise) + ' Paise';
+                }
+
+                return words + ' Only';
+            }
+
+            function calculateTotals() {
+                const rows = document.querySelectorAll('.item-row');
+                let subtotal = 0;
+
+                rows.forEach(row => {
+                    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                    const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                    const rowTotal = qty * price;
+                    subtotal += rowTotal;
+                    row.querySelector('.item-row-total').innerText = formatCurrency(rowTotal);
+                });
+
+                // Discount calculation (% or flat ₹)
+                const discountType = document.getElementById('discountType').value;
+                const discountRaw = document.getElementById('discountValue').value;
+                const discountNum = parseFloat(discountRaw) || 0;
+
+                let discountAmount = 0;
+                if (discountType === '%') {
+                    discountAmount = subtotal * (discountNum / 100);
+                    document.getElementById('discountPrintLabel').innerText = `(${discountNum}%)`;
+                } else {
+                    discountAmount = discountNum;
+                    document.getElementById('discountPrintLabel').innerText = `(₹${discountNum})`;
+                }
+                discountAmount = Math.min(subtotal, Math.max(0, discountAmount));
+                const taxableAmount = Math.max(0, subtotal - discountAmount);
+
+                // Tax calculation
+                const taxInput = document.getElementById('taxRate').value;
+                const taxRate = parseFloat(taxInput) || 0;
+                const taxAmount = taxableAmount * (taxRate / 100);
+                document.getElementById('taxPrintLabel').innerText = `(${taxRate}%)`;
+
+                // Optional Round Off calculation
+                let unroundedTotal = taxableAmount + taxAmount;
+                let roundOffDifference = 0;
+                let grandTotal = unroundedTotal;
+
+                const isRoundOffEnabled = document.getElementById('enableRoundOff').checked;
+                if (isRoundOffEnabled) {
+                    grandTotal = Math.round(unroundedTotal);
+                    roundOffDifference = grandTotal - unroundedTotal;
+                }
+
+                document.getElementById('subtotalVal').innerText = formatCurrency(subtotal);
+                document.getElementById('discountVal').innerText = '-' + formatCurrency(discountAmount);
+                document.getElementById('taxVal').innerText = formatCurrency(taxAmount);
+                document.getElementById('roundOffVal').innerText = (roundOffDifference >= 0 ? '+' : '') + formatCurrency(roundOffDifference);
+                document.getElementById('grandTotalVal').innerText = formatCurrency(grandTotal);
+
+                // Update Total Due in Words
+                document.getElementById('totalInWords').innerText = numberToWordsINR(grandTotal);
+
+                // Dynamic PDF/Print Visibility Logic
+                const discountRow = document.getElementById('discountRow');
+                if (discountNum === 0 || discountRaw.trim() === '') {
+                    discountRow.classList.add('hide-on-print');
+                } else {
+                    discountRow.classList.remove('hide-on-print');
+                }
+
+                const taxRow = document.getElementById('taxRow');
+                if (taxRate === 0 || taxInput.trim() === '') {
+                    taxRow.classList.add('hide-on-print');
+                } else {
+                    taxRow.classList.remove('hide-on-print');
+                }
+
+                const roundOffRow = document.getElementById('roundOffRow');
+                if (!isRoundOffEnabled || Math.abs(roundOffDifference) < 0.001) {
+                    roundOffRow.classList.add('hide-on-print');
+                } else {
+                    roundOffRow.classList.remove('hide-on-print');
+                }
+            }
+
+            function addRow() {
+                const tbody = document.getElementById('itemsBody');
+                const tr = document.createElement('tr');
+                tr.className = 'item-row';
+                tr.innerHTML = `
+            <td class="text-center">
+                <span class="item-sl-no"></span>
+            </td>
+            <td>
+                <input type="text" class="item-title" placeholder="Item name" style="font-weight:600; margin-bottom:4px;">
+                <input type="text" class="item-desc" placeholder="Description" style="font-size:11.5px; color:#64748b;">
+            </td>
+            <td>
+                <input type="text" class="item-uom text-center" value="PCS" placeholder="UoM">
+            </td>
+            <td>
+                <input type="number" class="item-qty text-center" value="1" min="0" step="any" oninput="calculateTotals()">
+            </td>
+            <td>
+                <input type="number" class="item-price text-right" value="0" min="0" step="any" oninput="calculateTotals()">
+            </td>
+            <td class="text-right">
+                <span class="item-row-total">₹0.00</span>
+            </td>
+            <td class="text-center no-print">
+                <button class="btn btn-danger" onclick="deleteRow(this)" title="Delete Row">✕</button>
+            </td>
+        `;
+                tbody.appendChild(tr);
+                updateSerialNumbers();
+                calculateTotals();
+            }
+
+            function deleteRow(btn) {
+                const rows = document.querySelectorAll('.item-row');
+                if (rows.length > 1) {
+                    btn.closest('tr').remove();
+                    updateSerialNumbers();
+                    calculateTotals();
+                } else {
+                    showToast('You must keep at least one line item.');
+                }
+            }
+
+            function exportPDF() {
+                calculateTotals();
+                window.print();
+            }
+
+            function showToast(msg) {
+                const toast = document.getElementById('toast');
+                toast.innerText = msg;
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 2500);
+            }
+
+            function saveToStorage() {
+                const data = {
+                    companyName: document.getElementById('companyName').value,
+                    companyDetails: document.getElementById('companyDetails').value,
+                    invoiceNumber: document.getElementById('invoiceNumber').value,
+                    invoiceDate: document.getElementById('invoiceDate').value,
+                    clientName: document.getElementById('clientName').value,
+                    clientAddress: document.getElementById('clientAddress').value,
+                    paymentTerms: document.getElementById('paymentTerms').value,
+                    notes: document.getElementById('notes').value,
+                    signerName: document.getElementById('signerName').value,
+                    discountType: document.getElementById('discountType').value,
+                    discountValue: document.getElementById('discountValue').value,
+                    taxRate: document.getElementById('taxRate').value,
+                    enableRoundOff: document.getElementById('enableRoundOff').checked,
+                    items: []
+                };
+
+                document.querySelectorAll('.item-row').forEach(row => {
+                    data.items.push({
+                        title: row.querySelector('.item-title').value,
+                        desc: row.querySelector('.item-desc').value,
+                        uom: row.querySelector('.item-uom').value,
+                        qty: row.querySelector('.item-qty').value,
+                        price: row.querySelector('.item-price').value
+                    });
+                });
+
+                localStorage.setItem('saved_invoice_data', JSON.stringify(data));
+                showToast('Invoice data saved to browser memory!');
+            }
+
+            function loadFromStorage() {
+                const raw = localStorage.getItem('saved_invoice_data');
+                if (!raw) {
+                    showToast('No saved invoice found in browser memory.');
+                    return;
+                }
+
+                try {
+                    const data = JSON.parse(raw);
+                    document.getElementById('companyName').value = data.companyName || '';
+                    document.getElementById('companyDetails').value = data.companyDetails || '';
+                    document.getElementById('invoiceNumber').value = data.invoiceNumber || '';
+                    document.getElementById('invoiceDate').value = data.invoiceDate || '';
+                    document.getElementById('clientName').value = data.clientName || '';
+                    document.getElementById('clientAddress').value = data.clientAddress || '';
+                    document.getElementById('paymentTerms').value = data.paymentTerms || '';
+                    document.getElementById('notes').value = data.notes || '';
+                    document.getElementById('signerName').value = data.signerName || 'Rabindranath Mondal';
+                    document.getElementById('discountType').value = data.discountType || '%';
+                    document.getElementById('discountValue').value = data.discountValue !== undefined ? data.discountValue : (data.discountRate || 0);
+                    document.getElementById('taxRate').value = data.taxRate || 0;
+                    document.getElementById('enableRoundOff').checked = !!data.enableRoundOff;
+
+                    const tbody = document.getElementById('itemsBody');
+                    tbody.innerHTML = '';
+                    (data.items || []).forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'item-row';
+                        tr.innerHTML = `
+                    <td class="text-center">
+                        <span class="item-sl-no"></span>
+                    </td>
+                    <td>
+                        <input type="text" class="item-title" value="${item.title || ''}" placeholder="Item name" style="font-weight:600; margin-bottom:4px;">
+                        <input type="text" class="item-desc" value="${item.desc || ''}" placeholder="Item description" style="font-size:11.5px; color:#64748b;">
+                    </td>
+                    <td>
+                        <input type="text" class="item-uom text-center" value="${item.uom || 'PCS'}" placeholder="UoM">
+                    </td>
+                    <td>
+                        <input type="number" class="item-qty text-center" value="${item.qty || 1}" min="0" step="any" oninput="calculateTotals()">
+                    </td>
+                    <td>
+                        <input type="number" class="item-price text-right" value="${item.price || 0}" min="0" step="any" oninput="calculateTotals()">
+                    </td>
+                    <td class="text-right">
+                        <span class="item-row-total">₹0.00</span>
+                    </td>
+                    <td class="text-center no-print">
+                        <button class="btn btn-danger" onclick="deleteRow(this)" title="Delete Row">✕</button>
+                    </td>
+                `;
+                        tbody.appendChild(tr);
+                    });
+
+                    updateSerialNumbers();
+                    calculateTotals();
+                    showToast('Invoice loaded successfully!');
+                } catch (e) {
+                    showToast('Failed to load saved invoice.');
+                }
+            }
+
+            function resetForm() {
+                if (confirm('Are you sure you want to reset all fields?')) {
+                    location.reload();
+                }
+            }
+
+            updateSerialNumbers();
+            calculateTotals();
+        </script>
+
+</body>
+
+</html>
